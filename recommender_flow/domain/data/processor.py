@@ -1,8 +1,8 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
-from typing import List
 
 from recommender_flow.domain.data.layer import RawData, RefinedData, TrustedData
+
 
 @dataclass
 class ProcessedData:
@@ -15,14 +15,16 @@ class DataProcessManager(ABC):
     def process(self) -> ProcessedData:
         pass
 
+
 class ToRaw(ABC):
     @abstractmethod
     def process(self) -> RawData:
         pass
 
+
 class ToTrusted(ABC):
     @abstractmethod
-    def process(self) -> TrustedData:
+    def process(self, *args, **kwargs) -> TrustedData:
         pass
 
 
@@ -30,4 +32,3 @@ class ToRefined(ABC):
     @abstractmethod
     def process(self) -> RefinedData:
         pass
-    
