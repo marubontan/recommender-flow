@@ -34,7 +34,7 @@ class SurpriseEvaluator(Evaluator):
 
     @staticmethod
     def _load_movies_to_surprise(data: pd.DataFrame) -> DatasetAutoFolds:
-        reader = Reader(line_format="user item rating timestamp", sep=",", skip_lines=1)
+        reader = Reader(sep=",", skip_lines=1)
         return Dataset.load_from_df(data, reader)
 
     @staticmethod

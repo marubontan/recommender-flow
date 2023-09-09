@@ -7,6 +7,7 @@ from recommender_flow.use_case.movie_lens.development.data import (
 )
 from recommender_flow.use_case.movie_lens.development.evaluator import SurpriseEvaluator
 from recommender_flow.use_case.movie_lens.development.model import SvdModel
+from recommender_flow.util.type.status import Status
 
 if __name__ == "__main__":
     to_raw = MovieLensToRaw()
@@ -21,4 +22,4 @@ if __name__ == "__main__":
         data_process_manager=data_processor, evaluator=evaluator
     )
     output_dto = use_case.execute()
-    assert 1 == 1
+    assert output_dto.status == Status.SUCCESS
