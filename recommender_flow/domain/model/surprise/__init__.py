@@ -5,7 +5,7 @@ from surprise import Trainset
 from surprise.prediction_algorithms.predictions import Prediction
 
 from recommender_flow.domain.model import BaseModel
-from recommender_flow.use_case.movie_lens.development.type import TestDataSchema
+from recommender_flow.domain.util.type import TestDataSchema
 
 
 class SurpriseBaseModel(BaseModel, ABC):

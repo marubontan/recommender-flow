@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 
 
-class BaseRmseMetrics(ABC):
+class BaseMetrics(ABC):
     @abstractmethod
     def __init__(self):
         pass
