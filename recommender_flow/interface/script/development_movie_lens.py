@@ -23,3 +23,4 @@ if __name__ == "__main__":
     )
     output_dto = use_case.execute()
     assert output_dto.status == Status.SUCCESS
+    print(output_dto.evaluations)

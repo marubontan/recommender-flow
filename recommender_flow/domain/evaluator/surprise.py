@@ -9,7 +9,10 @@ from surprise.trainset import Trainset
 
 from recommender_flow.domain.data.processor import ProcessedData
 from recommender_flow.domain.evaluator import Evaluation, Evaluator, ModelName
-from recommender_flow.domain.metrics.surprise import SurpriseMaeMetrics
+from recommender_flow.domain.metrics.surprise import (
+    SurpriseHitRateMetrics,
+    SurpriseMaeMetrics,
+)
 from recommender_flow.domain.model.surprise import SurpriseBaseModel
 from recommender_flow.domain.util.type import TestDataSchema
 
@@ -18,6 +21,7 @@ class SurpriseEvaluator(Evaluator):
     def __init__(self, models: List[SurpriseBaseModel]):
         Evaluator.__init__(self, models)
         self._mae_metrics = SurpriseMaeMetrics()
+        self._hit_rate_metrics = SurpriseHitRateMetrics()
 
     def execute(
         self, processed_data: ProcessedData
@@ -70,4 +74,8 @@ class SurpriseEvaluator(Evaluator):
         model.fit(train_set)
         predictions = model.test(test_set)
         mae = self._mae_metrics.calculate(predictions)
-        return [Evaluation(uuid4(), model.id, model.name, "MAE", mae)]
+        hit_rate = self._hit_rate_metrics.calculate(predictions, predictions)
+        return [
+            Evaluation(uuid4(), model.id, model.name, "Hit Rate", hit_rate),
+            Evaluation(uuid4(), model.id, model.name, "MAE", mae),
+        ]
