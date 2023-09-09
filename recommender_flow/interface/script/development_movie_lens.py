@@ -1,3 +1,4 @@
+from recommender_flow.domain.evaluator.surprise import SurpriseEvaluator
 from recommender_flow.use_case.movie_lens.development import MovieLensDevelopmentUseCase
 from recommender_flow.use_case.movie_lens.development.data import (
     MovieLensDataProcessManager,
@@ -5,7 +6,6 @@ from recommender_flow.use_case.movie_lens.development.data import (
     MovieLensToRefined,
     MovieLensToTrusted,
 )
-from recommender_flow.use_case.movie_lens.development.evaluator import SurpriseEvaluator
 from recommender_flow.use_case.movie_lens.development.model import SvdModel
 from recommender_flow.util.type.status import Status
 

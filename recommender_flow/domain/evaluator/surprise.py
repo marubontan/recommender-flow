@@ -9,9 +9,9 @@ from surprise.trainset import Trainset
 
 from recommender_flow.domain.data.processor import ProcessedData
 from recommender_flow.domain.evaluator import Evaluation, Evaluator, ModelName
+from recommender_flow.domain.metrics.surprise import SurpriseMaeMetrics
 from recommender_flow.domain.model.surprise import SurpriseBaseModel
-from recommender_flow.use_case.movie_lens.development.metrics import SurpriseMaeMetrics
-from recommender_flow.use_case.movie_lens.development.type import TestDataSchema
+from recommender_flow.domain.util.type import TestDataSchema
 
 
 class SurpriseEvaluator(Evaluator):

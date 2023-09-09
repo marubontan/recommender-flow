@@ -2,10 +2,10 @@ from typing import List
 
 from surprise import Prediction, accuracy
 
-from recommender_flow.domain.metrics.mae import BaseMaeMetrics
+from recommender_flow.domain.metrics.base import BaseMetrics
 
 
-class SurpriseMaeMetrics(BaseMaeMetrics):
+class SurpriseMaeMetrics(BaseMetrics):
     def __init__(self):
         pass
 

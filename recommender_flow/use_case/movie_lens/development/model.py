@@ -3,7 +3,7 @@ from typing import List
 from surprise import SVD, Prediction, Trainset
 
 from recommender_flow.domain.model.surprise import SurpriseBaseModel
-from recommender_flow.use_case.movie_lens.development.type import TestDataSchema
+from recommender_flow.domain.util.type import TestDataSchema
 
 
 class SvdModel(SurpriseBaseModel):
