@@ -7,7 +7,7 @@ with open("requirements.txt") as f:
 
 setup(
     name="recommender_flow",
-    version='0.0.1',
+    version="0.0.1",
     packages=find_packages(exclude=("text*", "docs")),
     install_requires=required,
     include_package_data=True,

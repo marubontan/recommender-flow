@@ -11,6 +11,7 @@ from recommender_flow.domain.data.processor import (
 from recommender_flow.use_case.movie_lens.development.setting import (
     MOVIE_LENS_DATASET_PATH,
 )
+from recommender_flow.util.logger import logger
 
 
 class MovieLensRawData(RawData):
@@ -50,7 +51,9 @@ class MovieLensDataProcessManager(DataProcessManager):
         self._to_refined = to_refined
 
     def process(self) -> ProcessedData:
+        logger.info("Data Processing starting")
         raw_data = self._to_raw.process()
         trusted_data = self._to_trusted.process(raw_data)
         refined_data = self._to_refined.process(trusted_data)
+        logger.info("Data Processing finished")
         return ProcessedData(refined_data)
