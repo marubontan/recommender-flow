@@ -1,8 +1,7 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from typing import Any, Dict, List
-
-from click import UUID
+from uuid import UUID
 
 from recommender_flow.domain.data.processor import ProcessedData
 from recommender_flow.domain.model import BaseModel
