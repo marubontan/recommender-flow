@@ -15,13 +15,15 @@ class MovieLensDevelopmentUseCase:
 
     def execute(self) -> OutputDto:
         try:
+            logger.info("MovieLensDevelopmentUseCase starting")
             processed_data = self._get_processed_data()
             evaluations = self._evaluate(processed_data)
+            logger.info("MovieLensDevelopmentUseCase finished")
             return OutputDto(
                 id=uuid4(), status=Status.SUCCESS, evaluations=evaluations, message=None
             )
         except Exception as e:
-            logger.exception(e)
+            logger.exception(f"MovieLensDevelopmentUseCase failed {e}")
             return OutputDto(
                 id=uuid4(), status=Status.FAILURE, evaluations=None, message=str(e)
             )

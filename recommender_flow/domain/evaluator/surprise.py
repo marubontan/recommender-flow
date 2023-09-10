@@ -15,6 +15,7 @@ from recommender_flow.domain.metrics.surprise import (
 )
 from recommender_flow.domain.model.surprise import SurpriseBaseModel
 from recommender_flow.domain.util.type import TestDataSchema
+from recommender_flow.util.logger import logger
 
 
 class SurpriseEvaluator(Evaluator):
@@ -26,6 +27,7 @@ class SurpriseEvaluator(Evaluator):
     def execute(
         self, processed_data: ProcessedData
     ) -> Dict[ModelName, List[Evaluation]]:
+        logger.info("Evaluator starting")
         surprise_data = self._load_to_surprise(processed_data.refined_data.content)
 
         train_set, test_set = self._train_test_split(
@@ -38,6 +40,7 @@ class SurpriseEvaluator(Evaluator):
         evaluations = self._evaluate_models(
             train_set, test_set, leave_one_out_train_set, leave_one_out_test_set
         )
+        logger.info("Evaluator finished")
         return evaluations
 
     @staticmethod
@@ -85,6 +88,7 @@ class SurpriseEvaluator(Evaluator):
         leave_one_out_train_set: Trainset,
         leave_one_out_test_set: List[TestDataSchema],
     ) -> List[Evaluation]:
+        logger.info(f"Model Evaluation starting: {model.__class__.__name__}")
         model.fit(train_set)
         predictions = model.test(test_set)
         mae = self._mae_metrics.calculate(predictions)
@@ -97,6 +101,7 @@ class SurpriseEvaluator(Evaluator):
             leave_one_out_all_predictions, leave_one_out_predictions
         )
 
+        logger.info(f"Model Evaluation finished: {model.__class__.__name__}")
         return [
             Evaluation(uuid4(), model.id, model.name, "MAE", mae),
             Evaluation(
