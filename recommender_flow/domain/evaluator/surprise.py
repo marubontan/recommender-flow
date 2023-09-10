@@ -88,7 +88,6 @@ class SurpriseEvaluator(Evaluator):
         model.fit(train_set)
         predictions = model.test(test_set)
         mae = self._mae_metrics.calculate(predictions)
-        hit_rate = self._hit_rate_metrics.calculate(predictions, predictions)
 
         model.fit(leave_one_out_train_set)
         leave_one_out_predictions = model.test(leave_one_out_test_set)
@@ -99,13 +98,12 @@ class SurpriseEvaluator(Evaluator):
         )
 
         return [
-            Evaluation(uuid4(), model.id, model.name, "Hit Rate", hit_rate),
             Evaluation(uuid4(), model.id, model.name, "MAE", mae),
             Evaluation(
                 uuid4(),
                 model.id,
                 model.name,
-                "Leave One Out Hit Rate",
+                "Hit Rate",
                 leave_one_out_hit_rate,
             ),
         ]
