@@ -1,3 +1,4 @@
 .vscode/*
 *.pyc
 recommender_flow.egg-info
+notebook/*
