@@ -1,10 +1,10 @@
-from typing import Dict, List, Tuple
+from typing import Dict, Generator, List, Tuple
 from uuid import uuid4
 
 import pandas as pd
 from surprise import Dataset, Reader
 from surprise.dataset import DatasetAutoFolds
-from surprise.model_selection import train_test_split
+from surprise.model_selection import LeaveOneOut, train_test_split
 from surprise.trainset import Trainset
 
 from recommender_flow.domain.data.processor import ProcessedData
@@ -26,28 +26,24 @@ class SurpriseEvaluator(Evaluator):
     def execute(
         self, processed_data: ProcessedData
     ) -> Dict[ModelName, List[Evaluation]]:
-        surprise_movie_data = self._load_movies_to_surprise(
-            processed_data.refined_data.content
-        )
+        surprise_data = self._load_to_surprise(processed_data.refined_data.content)
 
         train_set, test_set = self._train_test_split(
-            surprise_movie_data, test_size=0.25, random_state=42
+            surprise_data, test_size=0.25, random_state=42
         )
-        evaluations = self._evaluate_models(train_set, test_set)
+        leave_one_out_train_set, leave_one_out_test_set = self._leave_one_out(
+            surprise_data
+        )
+
+        evaluations = self._evaluate_models(
+            train_set, test_set, leave_one_out_train_set, leave_one_out_test_set
+        )
         return evaluations
 
     @staticmethod
-    def _load_movies_to_surprise(data: pd.DataFrame) -> DatasetAutoFolds:
+    def _load_to_surprise(data: pd.DataFrame) -> DatasetAutoFolds:
         reader = Reader(sep=",", skip_lines=1)
         return Dataset.load_from_df(data, reader)
-
-    @staticmethod
-    def _build_training_set(
-        data: DatasetAutoFolds,
-    ) -> Tuple[Trainset, List[TestDataSchema]]:
-        full_training_set = data.build_full_trainset()
-        full_anti_test_set = full_training_set.build_anti_testset()
-        return full_training_set, full_anti_test_set
 
     @staticmethod
     def _train_test_split(
@@ -55,13 +51,29 @@ class SurpriseEvaluator(Evaluator):
     ) -> Tuple[Trainset, List[TestDataSchema]]:
         return train_test_split(data, test_size=test_size, random_state=random_state)
 
+    @staticmethod
+    def _leave_one_out(
+        data: DatasetAutoFolds,
+    ) -> Tuple[Trainset, List[TestDataSchema]]:
+        leave_one_out = LeaveOneOut(n_splits=1, random_state=42)
+        leave_one_out_set = next(leave_one_out.split(data))
+        return leave_one_out_set
+
     def _evaluate_models(
         self,
         train_set: Trainset,
         test_set: List[TestDataSchema],
+        leave_one_out_train_set: Trainset,
+        leave_one_out_test_set: List[TestDataSchema],
     ) -> Dict[ModelName, List[Evaluation]]:
         return {
-            model.__class__.__name__: self._evaluate(model, train_set, test_set)
+            model.__class__.__name__: self._evaluate(
+                model,
+                train_set,
+                test_set,
+                leave_one_out_train_set,
+                leave_one_out_test_set,
+            )
             for model in self._models
         }
 
@@ -70,12 +82,30 @@ class SurpriseEvaluator(Evaluator):
         model: SurpriseBaseModel,
         train_set: Trainset,
         test_set: List[TestDataSchema],
+        leave_one_out_train_set: Trainset,
+        leave_one_out_test_set: List[TestDataSchema],
     ) -> List[Evaluation]:
         model.fit(train_set)
         predictions = model.test(test_set)
         mae = self._mae_metrics.calculate(predictions)
         hit_rate = self._hit_rate_metrics.calculate(predictions, predictions)
+
+        model.fit(leave_one_out_train_set)
+        leave_one_out_predictions = model.test(leave_one_out_test_set)
+        leave_one_out_anti_test_set = leave_one_out_train_set.build_anti_testset()
+        leave_one_out_all_predictions = model.test(leave_one_out_anti_test_set)
+        leave_one_out_hit_rate = self._hit_rate_metrics.calculate(
+            leave_one_out_all_predictions, leave_one_out_predictions
+        )
+
         return [
             Evaluation(uuid4(), model.id, model.name, "Hit Rate", hit_rate),
             Evaluation(uuid4(), model.id, model.name, "MAE", mae),
+            Evaluation(
+                uuid4(),
+                model.id,
+                model.name,
+                "Leave One Out Hit Rate",
+                leave_one_out_hit_rate,
+            ),
         ]
