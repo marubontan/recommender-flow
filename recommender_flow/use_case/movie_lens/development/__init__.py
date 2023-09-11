@@ -17,7 +17,7 @@ class MovieLensDevelopmentUseCase:
         try:
             logger.info("MovieLensDevelopmentUseCase starting")
             processed_data = self._get_processed_data()
-            evaluations = self._evaluate(processed_data)
+            evaluations = self._evaluate(processed_data["ratings"])
             logger.info("MovieLensDevelopmentUseCase finished")
             return OutputDto(
                 id=uuid4(), status=Status.SUCCESS, evaluations=evaluations, message=None

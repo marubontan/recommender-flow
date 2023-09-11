@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
+from typing import Dict
 
 from recommender_flow.domain.data.layer import RawData, RefinedData, TrustedData
 
@@ -12,7 +13,7 @@ class ProcessedData:
 # TODO: Docstring
 class DataProcessManager(ABC):
     @abstractmethod
-    def process(self) -> ProcessedData:
+    def process(self) -> Dict[str, ProcessedData]:
         pass
 
 
