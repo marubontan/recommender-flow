@@ -1,4 +1,4 @@
-from typing import Dict, Generator, List, Tuple
+from typing import Dict, List, Tuple
 from uuid import uuid4
 
 import pandas as pd
@@ -7,7 +7,7 @@ from surprise.dataset import DatasetAutoFolds
 from surprise.model_selection import LeaveOneOut, train_test_split
 from surprise.trainset import Trainset
 
-from recommender_flow.domain.data.processor import ProcessedData
+from recommender_flow.domain.data.processor import Dataset as ProcessedDataset
 from recommender_flow.domain.evaluator import Evaluation, Evaluator, ModelName
 from recommender_flow.domain.metrics.surprise import (
     SurpriseHitRateMetrics,
@@ -25,10 +25,10 @@ class SurpriseEvaluator(Evaluator):
         self._hit_rate_metrics = SurpriseHitRateMetrics()
 
     def execute(
-        self, processed_data: ProcessedData
+        self, dataset: ProcessedDataset, main_data_name: str
     ) -> Dict[ModelName, List[Evaluation]]:
         logger.info("Evaluator starting")
-        surprise_data = self._load_to_surprise(processed_data.refined_data.content)
+        surprise_data = self._load_to_surprise(dataset.get(main_data_name).content)
 
         train_set, test_set = self._train_test_split(
             surprise_data, test_size=0.25, random_state=42

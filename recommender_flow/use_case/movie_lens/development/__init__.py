@@ -1,7 +1,7 @@
 from typing import Dict, List
 from uuid import uuid4
 
-from recommender_flow.domain.data.processor import DataProcessManager, ProcessedData
+from recommender_flow.domain.data.processor import DataProcessManager, Dataset
 from recommender_flow.domain.evaluator import Evaluation, Evaluator, ModelName
 from recommender_flow.use_case.movie_lens.development.dto import OutputDto
 from recommender_flow.util.logger import logger
@@ -16,8 +16,9 @@ class MovieLensDevelopmentUseCase:
     def execute(self) -> OutputDto:
         try:
             logger.info("MovieLensDevelopmentUseCase starting")
-            processed_data = self._get_processed_data()
-            evaluations = self._evaluate(processed_data["ratings"])
+            self._process_data()
+            rating_dataset = self._get_processed_data("ratings")
+            evaluations = self._evaluate(rating_dataset)
             logger.info("MovieLensDevelopmentUseCase finished")
             return OutputDto(
                 id=uuid4(), status=Status.SUCCESS, evaluations=evaluations, message=None
@@ -28,10 +29,11 @@ class MovieLensDevelopmentUseCase:
                 id=uuid4(), status=Status.FAILURE, evaluations=None, message=str(e)
             )
 
-    def _get_processed_data(self) -> ProcessedData:
-        return self._data_process_manager.process()
+    def _process_data(self):
+        self._data_process_manager.process()
 
-    def _evaluate(
-        self, processed_data: ProcessedData
-    ) -> Dict[ModelName, List[Evaluation]]:
-        return self._evaluator.execute(processed_data)
+    def _get_processed_data(self, name: str) -> Dataset:
+        return self._data_process_manager.get(name)
+
+    def _evaluate(self, dataset: Dataset) -> Dict[ModelName, List[Evaluation]]:
+        return self._evaluator.execute(dataset, "RatingsRefinedData")

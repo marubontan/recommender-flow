@@ -3,7 +3,7 @@ from dataclasses import dataclass
 from typing import Any, Dict, List
 from uuid import UUID
 
-from recommender_flow.domain.data.processor import ProcessedData
+from recommender_flow.domain.data.processor import Dataset
 from recommender_flow.domain.model import BaseModel
 
 ModelName = str
@@ -23,7 +23,5 @@ class Evaluator(ABC):
         self._models = models
 
     @abstractmethod
-    def execute(
-        self, processed_data: ProcessedData
-    ) -> Dict[ModelName, List[Evaluation]]:
+    def execute(self, dataset: Dataset) -> Dict[ModelName, List[Evaluation]]:
         pass

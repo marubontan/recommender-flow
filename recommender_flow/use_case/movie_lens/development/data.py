@@ -1,11 +1,11 @@
-from typing import Dict
+from typing import Dict, List
 
 import pandas as pd
 
 from recommender_flow.domain.data.layer import RawData, RefinedData, TrustedData
 from recommender_flow.domain.data.processor import (
     DataProcessManager,
-    ProcessedData,
+    Dataset,
     ToRaw,
     ToRefined,
     ToTrusted,
@@ -86,9 +86,10 @@ class MovieLensDataProcessManager(DataProcessManager):
         self._ratings_to_refined = RatingsToRefined()
         self._movies_to_raw = MoviesToRaw()
         self._movies_to_trusted = MoviesToTrusted()
-        self.movie_year_similarity_to_refined = MoviesYearSimilarityToRefined()
+        self._movie_year_similarity_to_refined = MoviesYearSimilarityToRefined()
+        self._datasets = None
 
-    def process(self) -> Dict[str, ProcessedData]:
+    def process(self):
         logger.info("Data Processing starting")
         ratings_raw_data = self._ratings_to_raw.process()
         ratings_trusted_data = self._ratings_to_trusted.process(ratings_raw_data)
@@ -96,11 +97,14 @@ class MovieLensDataProcessManager(DataProcessManager):
         movies_raw_data = self._movies_to_raw.process()
         movies_trusted_data = self._movies_to_trusted.process(movies_raw_data)
         movie_year_similarity_refined_data = (
-            self.movie_year_similarity_to_refined.process(movies_trusted_data)
+            self._movie_year_similarity_to_refined.process(movies_trusted_data)
         )
 
         logger.info("Data Processing finished")
-        return {
-            "ratings": ProcessedData(ratings_refined_data),
-            "year-similarity": ProcessedData(movie_year_similarity_refined_data),
-        }
+        self._datasets = [
+            Dataset("ratings", [ratings_refined_data]),
+            Dataset(
+                "content-based",
+                [ratings_refined_data, movie_year_similarity_refined_data],
+            ),
+        ]
